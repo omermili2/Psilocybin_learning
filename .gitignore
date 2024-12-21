@@ -1,0 +1,10 @@
+_site
+.sass-cache
+Gemfile.lock
+*.gem
+.jekyll-cache
+.DS_Store
+data/*
+incomplete/*
+!data/.placeholder
+debug_play/*

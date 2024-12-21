@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+<meta content="utf-8" http-equiv="encoding">
+<html dir="rtl">
+<head>
+  <title>Two-Step Task</title>
+
+  <!-- Load libraries -->
+  <script src="../static/lib/jquery-3.3.1/jquery.min.js"></script>
+  <script src="../static/lib/jspsych-7.2.1/jspsych.js"></script>
+
+  <!-- Load jspsych plugins -->
+  <script src="../static/lib/jspsych-7.2.1/plugins/plugin-preload.js"></script>
+  <script src="../static/lib/jspsych-7.2.1/plugins/plugin-fullscreen.js"></script>
+  <script src="../static/lib/jspsych-7.2.1/plugins/plugin-call-function.js"></script>
+  <script src="../static/lib/jspsych-7.2.1/plugins/plugin-survey-text.js" type="text/javascript"></script>
+
+  <script src="../static/nivturk-plugins.js"></script>
+
+
+  <!-- Load costume plugins -->
+  <script src="../static/two-step/js/jspsych-pre-alien-practice.js" type="text/javascript"></script>
+  <script src="../static/two-step/js/jspsych-one-alien-practice.js" type="text/javascript"></script>
+  <script src="../static/two-step/js/jspsych-alien-practice.js" type="text/javascript"></script>
+  <script src="../static/two-step/js/jspsych-rocket-practice.js" type="text/javascript"></script>
+  <script src="../static/two-step/js/jspsych-two-step-trial.js" type="text/javascript"></script>
+  <script src="../static/two-step/js/jspsych-two-step-instructions.js" type="text/javascript"></script>
+  <script src="../static/two-step/js/jspsych-two-step-comprehension.js" type="text/javascript"></script>
+
+
+  <!-- Load CSS styles -->
+  <link href="../static/lib/jspsych-7.2.1/css/jspsych.css" rel="stylesheet" type="text/css"></link>
+  <link href="../static/two-step/css/two-step-css.min.css" rel="stylesheet" type="text/css"></link>
+
+</head>
+<body></body>
+  <script>
+
+  // Display alert message on back/refresh.
+  // https://developer.mozilla.org/en-US/docs/Web/API/WindowEventHandlers/onbeforeunload
+  function verify_unload(e){
+    e.preventDefault();
+    (e || window.event).returnValue = null;
+    incomplete_save();
+    return null;
+  };
+  window.addEventListener("beforeunload", verify_unload);
+
+  // Define global variables.
+  fout = false;
+
+  //------------------------------------
+  // set up jsPsych
+  //------------------------------------
+
+  var jsPsych = initJsPsych({
+    show_progress_bar: true,
+    message_progress_bar:'',
+    auto_update_progress_bar: false,
+    use_webaudio:true,
+    //override_safe_mode:true,
+    on_finish: function() {
+
+      // Remove requirement to verify redirect
+      window.removeEventListener("beforeunload", verify_unload);
+
+      // Add interactions to the data variable
+      var interaction_data = jsPsych.data.getInteractionData();
+      jsPsych.data.get().addToLast({interactions: interaction_data.json()});
+
+      // Download data
+      jsPsych.data.get().localSave('json',fout+'_part1.json');
+      interim_redirect_success(fout+'_part1.json');
+
+      // jsPsych.data.get().localSave('json',fout+'_part2.json');
+
+
+      // Display jsPsych data in viewport.
+      // jsPsych.data.displayData();
+      // redirect_success(fout+'_part2.json');
+
+
+    }
+  });
+
+  // Add version metadata.
+  jsPsych.data.addProperties({
+    task: 'twostep',
+    task_version: '0.2.H',
+  });
+
+  var mapping = jsPsych.randomization.shuffle([
+          jsPsych.randomization.shuffle([0,1]),
+          jsPsych.randomization.shuffle([2,3]),
+      ]).flat();
+
+  </script>
+
+  <!-- Load experiment -->
+
+  <script src="../static/two-step/js/two-step-drifts.js" type="text/javascript"></script>
+  <script src="../static/two-step/js/two-step-text-he.js" type="text/javascript"></script>
+
+  <script src="../static/two-step/js/two-step-params.js" type="text/javascript"></script>
+  <script src="../static/two-step/js/two-step-utils.js" type="text/javascript"></script>
+
+  <script src="../static/two-step/js/two-step-experiment.js" type="text/javascript"></script>
+  <script src="../static/two-step/js/two-step-instructions.js" type="text/javascript"></script>
+
+  <script>
+
+
+  /* create timeline */
+   var timeline = [];
+
+  // Define global variables.
+  var low_quality = false;
+
+  // Define image preloading.
+  var PRELOAD = {
+    type: jsPsychPreload,
+    images: preload_images,
+    audio: audio_files,
+    message: preload_msg,
+    error_message: '<p>The experiment failed to load. Please try restarting your browser.</p><p>If this error persists after 2-3 tries, please contact the experimenter.</p>',
+    continue_after_error: false,
+    show_progress_bar: true,
+    max_load_time: 30000
+  }
+
+
+  // Define experiment fullscreen.
+  var FULLSCREEN = {
+    type: jsPsychFullscreen,
+    fullscreen_mode: true,
+    message:fullscreen,
+    button_label:continue_label
+  }
+
+    //LOGS
+    INSTRUCTIONS.on_start = function() {
+    msg = 'INSTRUCTIONS'
+    mode='a'
+    pass_message(fout, mode, msg);
+  }
+
+  READY_1.on_start = function() {
+    msg = 'READY_1'
+    mode='a'
+    pass_message(fout, mode, msg);
+  }
+
+  TWO_STEP_TASK.on_start = function() {
+    msg = 'TWO_STEP_TASK'
+    mode='a'
+    pass_message(fout, mode, msg);
+  }
+
+  PRE_READY_2.on_start = function() {
+    msg = 'PRE_READY_2'
+    mode='a'
+    pass_message(fout, mode, msg);
+  }
+
+
+  timeline = timeline.concat(GETSUBJECTID);
+  timeline = timeline.concat(PRELOAD);
+  timeline = timeline.concat(FULLSCREEN);
+  timeline = timeline.concat(INSTRUCTIONS);
+  timeline = timeline.concat(READY_1);
+  timeline = timeline.concat(TWO_STEP_TASK.slice(0,100));
+  timeline = timeline.concat(PRE_READY_2);
+  // timeline = timeline.concat(READY_2);
+  // timeline = timeline.concat(TWO_STEP_TASK.slice(100,201));
+  // timeline = timeline.concat(FINISHED);
+
+
+  //------------------------------------
+  // run the experiment
+  //------------------------------------
+
+  jsPsych.run(timeline);
+
+</script>
+</html>

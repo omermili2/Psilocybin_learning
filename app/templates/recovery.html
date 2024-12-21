@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html dir="rtl">
+  <meta charset="utf-8" />
+
+	<head>
+		<title>קלפים צועקים 2</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+
+    <!-- Load libraries -->
+    <link href= "../static/fctask_shared/css/tacit-css.min.css" rel="stylesheet" type="text/css">
+		<script src="../static/lib/jspsych-7.2.1/jspsych.js"></script>
+    <script src="../static/lib/jquery-3.3.1/jquery.min.js"></script>
+    <link href="../static/lib/jspsych-7.2.1/css/jspsych.css" rel="stylesheet" type="text/css">
+
+    <!-- Load jsPsych plugins -->
+    <script src="../static/lib/jspsych-7.2.1/plugins/plugin-fullscreen.js"></script>
+    <script src="../static/lib/jspsych-7.2.1/plugins/plugin-survey-likert.js"></script>
+    <script src="../static/lib/jspsych-7.2.1/plugins/plugin-html-keyboard-response.js"></script>
+    <script src="../static/lib/jspsych-7.2.1/plugins/plugin-image-keyboard-response.js"></script>
+    <script src="../static/lib/jspsych-7.2.1/plugins/plugin-instructions.js"></script>
+    <script src="../static/lib/jspsych-7.2.1/plugins/plugin-survey-text.js" type="text/javascript"></script>
+
+    <!-- Load NivTurk plugins -->
+    <script src="../static/nivturk-plugins.js"></script>
+
+    <!-- Load Custom Plugins -->
+    <script src="../static/fctask_shared/custom-plugins/comprehension-check.js"></script>
+    <script src="../static/fctask_shared/custom-plugins/jspsych-fctask-trial.js"></script>
+    <script src="../static/fctask_shared/custom-plugins/jspsych-expectancy-rating.js"></script>
+    <script src="../static/fctask_shared/custom-plugins/jspsych-expectancy-rating-responsestyle.js"></script>
+    <script src="../static/fctask_shared/custom-plugins/jspsych-affective-rating.js"></script>
+
+    <!-- Load Task - Shared Files -->
+    <!-- <script src="../static/jspsych-mental-health-alert.js"></script> -->
+    <script src="../static/fctask_shared/fctask_attention_check.js"></script>
+    <script src="../static/fctask_shared/fctask_design.js"></script>
+    <script src="../static/fctask_shared/fctask_rating_scales.js"></script>
+    <script src="../static/fctask_shared/fctask_data_functions.js"></script>
+    
+      
+    <!-- Load Task - Specific Files -->
+    <script src="../static/recovery/instructions_recovery.js"></script>
+    <script src="../static/recovery/timeline_recovery.js"></script>
+
+	</head>
+
+	<body></body>
+
+	<script>
+
+
+  // Display alert message on back/refresh.
+  // https://developer.mozilla.org/en-US/docs/Web/API/WindowEventHandlers/onbeforeunload
+  function verify_unload(e){
+    e.preventDefault();
+    (e || window.event).returnValue = null;
+    incomplete_save();
+    return null;
+  };
+  window.addEventListener("beforeunload", verify_unload);
+
+  fout = false;
+
+var jsPsych = initJsPsych({
+show_progress_bar: false,
+use_webaudio:true,
+//override_safe_mode:true,
+on_finish: function() {
+
+  // Remove requirement to verify redirect
+  window.removeEventListener("beforeunload", verify_unload);
+
+  // Add interactions to the data variable
+  var interaction_data = jsPsych.data.getInteractionData();
+  jsPsych.data.get().addToLast({interactions: interaction_data.json()});
+
+  // Download data
+  jsPsych.data.get().localSave('json',fout+'.json');
+
+
+  // Display jsPsych data in viewport.
+  // jsPsych.data.displayData();
+  redirect_success(fout+'_interim.json');
+
+
+}
+});
+
+// Add version metadata.
+jsPsych.data.addProperties({
+task: 'scream_recovery',
+task_version: '0.2.H',
+});
+
+
+//SAVE DATA at the half way point (during break).
+// pressSpacebarSaveHalfTime.on_start = function() {
+// interim_redirect_success(fout);
+// jsPsych.data.get().localSave('json',fout+'_interim.json');
+
+// }
+
+jsPsych.run(timelineRec);
+
+</script>
+</html>
+

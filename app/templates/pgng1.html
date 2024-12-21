@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+<meta content="utf-8" http-equiv="encoding">
+
+<html dir="rtl">
+<head>
+  <title>Pavlovian go/no-go task</title>
+
+  <!-- Load libraries -->
+  <script src="../static/lib/jquery-3.3.1/jquery.min.js"></script>
+  <script src="../static/lib/jspsych-7.2.1/jspsych.js"></script>
+
+  <!-- Load experiment -->
+  <script src="../static/pgng/js/pgng-runsheets.js" type="text/javascript"></script>
+
+  <!-- Load jsPsych plug-ins -->
+  <script src="../static/pgng/js/jspsych-pgng-trial.js" type="text/javascript"></script>
+  <script src="../static/pgng/js/jspsych-pgng-instructions.js" type="text/javascript"></script>
+  <script src="../static/pgng/js/jspsych-pgng-comprehension.js" type="text/javascript"></script>
+  <script src="../static/pgng/js/jspsych-screen-check.js" type="text/javascript"></script>
+
+  <script src="../static/lib/jspsych-7.2.1/plugins/plugin-preload.js"></script>
+  <script src="../static/lib/jspsych-7.2.1/plugins/plugin-instructions.js" type="text/javascript"></script>
+  <script src="../static/lib/jspsych-7.2.1/plugins/plugin-fullscreen.js"></script>
+  <script src="../static/lib/jspsych-7.2.1/plugins/plugin-html-keyboard-response.js"></script>
+  <script src="../static/lib/jspsych-7.2.1/plugins/plugin-survey-text.js" type="text/javascript"></script>
+
+  <script src="../static/nivturk-plugins.js"></script>
+
+  <!-- Load CSS styles -->
+  <link href="../static/lib/jspsych-7.2.1/css/jspsych.css" rel="stylesheet" type="text/css"></link>
+  <link href="../static/pgng/css/factory-css.min.css" rel="stylesheet" type="text/css"></link>
+
+</head>
+<body></body>
+<script>
+
+  // Display alert message on back/refresh.
+  // https://developer.mozilla.org/en-US/docs/Web/API/WindowEventHandlers/onbeforeunload
+  function verify_unload(e){
+    e.preventDefault();
+    (e || window.event).returnValue = null;
+    incomplete_save();
+    return null;
+  };
+  window.addEventListener("beforeunload", verify_unload);
+
+
+  // Define global variables.
+  fout = false;
+
+  var jsPsych = initJsPsych({
+    show_progress_bar: true,
+    message_progress_bar:'',
+    use_webaudio:true,
+    auto_update_progress_bar: false,
+    //override_safe_mode:true,
+    on_finish: function() {
+
+      // Remove requirement to verify redirect
+      window.removeEventListener("beforeunload", verify_unload);
+
+      // Add interactions to the data variable
+      var interaction_data = jsPsych.data.getInteractionData();
+      jsPsych.data.get().addToLast({interactions: interaction_data.json()});
+
+      // Display jsPsych data in viewport.
+      // jsPsych.data.displayData();
+
+      // Download data
+      jsPsych.data.get().localSave('json',fout+'_part1.json');
+
+      // Save complete dataset to disk.
+      interim_redirect_success(fout+'_part1.json');
+
+    }
+  });
+
+    // Add version metadata.
+    jsPsych.data.addProperties({
+      task: 'pgng',
+      task_version: '0.2.H',
+    });
+
+
+  </script>
+  <script src="../static/pgng/js/pgng-text-he.js" type="text/javascript"></script>
+  <script src="../static/pgng/js/pgng-params.js" type="text/javascript"></script>
+  <script src="../static/pgng/js/pgng-utils.js" type="text/javascript"></script>
+
+  <script src="../static/pgng/js/pgng-experiment.js" type="text/javascript"></script>
+  <script src="../static/pgng/js/pgng-instructions.js" type="text/javascript"></script>
+  <script>
+
+
+
+  var PRELOAD = {
+    type: jsPsychPreload,
+    audio	: preload_files,
+    message: preload_msg,
+    error_message: '<p>The experiment failed to load. Please try restarting your browser.</p><p>If this error persists after 2-3 tries, please contact the experimenter.</p>',
+    continue_after_error: false,
+    show_progress_bar: true,
+    max_load_time: 30000
+  }
+
+
+  // Define experiment fullscreen.
+  var FULLSCREEN = {
+    type: jsPsychFullscreen,
+    fullscreen_mode: true,
+    message:fullscreen,
+    button_label:continue_label
+  }
+
+   //LOGS
+   INSTRUCTIONS.on_start = function() {
+    msg = 'INSTRUCTIONS'
+    mode='a'
+    pass_message(fout, mode, msg);
+  }
+
+  READY_1.on_start = function() {
+    msg = 'READY_1'
+    mode='a'
+    pass_message(fout, mode, msg);
+  }
+
+  PIT.on_start = function() {
+    msg = 'PIT'
+    mode='a'
+    pass_message(fout, mode, msg);
+  }
+
+  PRE_READY_2.on_start = function() {
+    msg = 'PRE_READY_2'
+    mode='a'
+    pass_message(fout, mode, msg);
+  }
+
+
+  // Define timeline.
+  var timeline = [];
+  timeline = timeline.concat(GETSUBJECTID);
+  timeline = timeline.concat(PRELOAD);
+  timeline = timeline.concat(FULLSCREEN);
+  timeline = timeline.concat(INSTRUCTIONS);
+  timeline = timeline.concat(READY_1);
+  timeline = timeline.concat(PIT.slice(0,N_trials/2));
+  timeline = timeline.concat(PRE_READY_2);
+  // timeline = timeline.concat(READY_2);
+  // timeline = timeline.concat(PIT.slice(N_trials/2,N_trials+1));
+  // timeline = timeline.concat(FINISHED);
+
+
+  jsPsych.run(timeline);
+
+
+
+</script>
+</html>
+<!--  -->

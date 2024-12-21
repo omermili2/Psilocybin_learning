@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+<meta content="utf-8" http-equiv="encoding">
+<html dir="rtl">
+<head>
+  <title>Break</title>
+
+  <!-- Load libraries -->
+  <script src="../static/lib/jquery-3.3.1/jquery.min.js"></script>
+  <script src="../static/lib/jspsych-7.2.1/jspsych.js"></script>
+
+
+  <script src="../static/lib/jspsych-7.2.1/plugins/plugin-preload.js"></script>
+  <script src="../static/lib/jspsych-7.2.1/plugins/plugin-fullscreen.js"></script>
+  <script src="../static/lib/jspsych-7.2.1/plugins/plugin-video-button-response.js"></script>
+  <script src="../static/lib/jspsych-7.2.1/plugins/plugin-survey-text.js" type="text/javascript"></script>
+  <script src="../static/lib/jspsych-7.2.1/plugins/plugin-html-button-response.js"></script>
+
+  <script src="../static/nivturk-plugins.js"></script>
+  <!-- Load CSS styles -->
+  <link href="../static/lib/jspsych-7.2.1/css/jspsych.css" rel="stylesheet" type="text/css"></link>
+  <link href="../static/mrst/css/mrst-css.min.css" rel="stylesheet" type="text/css"></link>
+
+</head>
+<body></body>
+<script>
+
+  // Display alert message on back/refresh.
+  // https://developer.mozilla.org/en-US/docs/Web/API/WindowEventHandlers/onbeforeunload
+  function verify_unload(e){
+    e.preventDefault();
+    (e || window.event).returnValue = null;
+    incomplete_save(fout);
+    return null;
+  };
+  // Define global variables.
+  fout = false;
+
+//   window.addEventListener("beforeunload", verify_unload);
+
+  
+
+  var jsPsych = initJsPsych({
+    show_progress_bar: false,
+    message_progress_bar:'',
+    use_webaudio:true,
+    // auto_update_progress_bar: false,
+    // override_safe_mode:true,
+    // on_finish: function() {
+
+    //   // Remove requirement to verify redirect
+    //   window.removeEventListener("beforeunload", verify_unload);
+
+    //   // Add interactions to the data variable
+    //   var interaction_data = jsPsych.data.getInteractionData();
+    //   jsPsych.data.get().addToLast({interactions: interaction_data.json()});
+
+    //   // Download data
+    // //   jsPsych.data.get().localSave('json',fout+'.json');
+
+
+    //   // Display jsPsych data in viewport.
+    //   redirect_success(fout+'.json');
+
+    // }
+  });
+
+    var preload_msg = 'המשחק טוען מדיה. כבר נתחיל';
+
+
+  // Add version metadata.
+  jsPsych.data.addProperties({
+    task: 'break',
+    task_version: '0.2.H',
+  });
+
+
+  // Define image preloading.
+  var PRELOAD = {
+    type: jsPsychPreload,
+    // images: preload_images,
+    // audio: preload_audio,
+    video: ['../static/break/timer.mp4'],
+    message: preload_msg,
+  }
+
+  // Define experiment fullscreen.
+    var start = {
+  type: jsPsychHtmlButtonResponse,
+  stimulus: "<p>לחצו 'הבא' כדי להתחיל את ההפסקה</p>",
+  choices: ['הבא'],
+  // prompt: ""
+};
+
+
+
+  //define break
+  var BREAK = {
+  type: jsPsychVideoButtonResponse,
+  stimulus: [
+    '../static/break/timer.mp4'
+  ],
+  stop:121,
+  choices: ['חזרה אל דף הבית'],
+  response_allowed_while_playing: false,
+  response_ends_trial:true,
+   on_start: function () {                
+    document.body.style.backgroundColor = 'black'
+            },
+  on_finish: function () {                
+            setTimeout(function () { location.href = "/home" }, 1)
+            }
+
+    };
+
+
+  // Initialize timeline.
+  var timeline = [];
+  timeline = timeline.concat(PRELOAD);
+  timeline = timeline.concat(start);
+
+  timeline = timeline.concat(BREAK);
+
+
+
+
+  jsPsych.run(timeline);
+
+</script>
+</html>
